@@ -4,14 +4,13 @@ import com.example.androidprojectexample.data.model.Song
 
 class SongIO {
 
-    private val songs = ArrayList<Song>()
+    private var songs = emptyList<Song>()
 
-    fun saveSongs(songs: ArrayList<Song>) {
-        this.songs.clear()
-        this.songs.addAll(songs)
+    fun saveSongs(newSongs: List<Song>) {
+        songs = newSongs.toList()
     }
 
-    fun getSongs(): ArrayList<Song> {
+    fun getSongs(): List<Song> {
         return songs
     }
 

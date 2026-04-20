@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PagerScreen() {
 
+    // UI = how it moves
     val pagerState = rememberPagerState(pageCount = { 3 })
 
     Scaffold { innerPadding ->

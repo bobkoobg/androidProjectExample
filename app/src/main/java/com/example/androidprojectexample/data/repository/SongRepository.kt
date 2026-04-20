@@ -9,7 +9,7 @@ class SongRepository(
     private val api: SongApi = SongApi(),
     private val dao: SongIO = SongIO()
 ) {
-    fun getSongs(): ArrayList<Song> {
+    fun getSongs(): List<Song> {
         val local = dao.getSongs()
 
         return local.ifEmpty {

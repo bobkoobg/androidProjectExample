@@ -5,9 +5,9 @@ import com.example.androidprojectexample.data.model.Song
 
 class SongApi {
 
-    fun fetchSongs(): ArrayList<Song> {
+    fun fetchSongs(): List<Song> {
         Log.d("BOYKO", "fetchSongs: Fetching songs from API")
-        return arrayListOf(
+        return listOf(
             Song(1, "Jaba Jaburana"),
             Song(2, "100 mushici hvana"),
             Song(3, "v blizkata gorichka"),

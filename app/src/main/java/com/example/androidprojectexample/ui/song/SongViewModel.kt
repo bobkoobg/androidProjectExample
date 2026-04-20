@@ -9,9 +9,15 @@ import com.example.androidprojectexample.data.repository.SongRepository
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
+// State holders (such as ViewModel) that hold data, expose it to the UI, and handle logic.
+// State holders should live for the same duration as the UI element they are providing state for.
+// For example, a ViewModel for a screen should be retained in memory until the screen is removed
+// from the app's navigation back stack.
 class SongViewModel(
     private val repository: SongRepository = SongRepository()
 ) : ViewModel() {
+
+    // ViewModel = what it means
 
     var uiState by mutableStateOf(SongUiState())
         private set // Anyone can read uiState. Only this class can change it
@@ -36,7 +42,7 @@ class SongViewModel(
         )
 
         uiState = uiState.copy(
-            songs = (uiState.songs + newSong) as ArrayList<Song>,
+            songs = (uiState.songs + newSong),
             inputText = "" // clear input
         )
     }

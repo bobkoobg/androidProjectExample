@@ -4,6 +4,6 @@ import com.example.androidprojectexample.data.model.Song
 
 // Single source of truth
 data class SongUiState (
-    val songs: ArrayList<Song> = arrayListOf(),
+    val songs: List<Song> = listOf(),
     val inputText: String = ""
 )

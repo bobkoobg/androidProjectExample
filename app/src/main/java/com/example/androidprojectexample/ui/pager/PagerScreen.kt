@@ -3,7 +3,6 @@ package com.example.androidprojectexample.ui.pager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -23,7 +22,15 @@ import androidx.compose.ui.unit.dp
 // You build these elements using Jetpack Compose functions to support adaptive layouts.
 @Preview(showBackground = true)
 @Composable
-fun PagerScreen() {
+private fun PagerScreenPreview() {
+    PagerScreen(onNavigateToPager = {})
+}
+
+
+@Composable
+fun PagerScreen(
+    onNavigateToPager: () -> Unit
+) {
 
     // UI = how it moves
     val pagerState = rememberPagerState(pageCount = { 3 })

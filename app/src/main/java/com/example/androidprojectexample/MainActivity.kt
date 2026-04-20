@@ -6,25 +6,47 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.androidprojectexample.ui.pager.PagerScreen
 import com.example.androidprojectexample.ui.song.SongScreen
 
-
-// TODO: modern apps use a single-activity architecture. A single Activity serves as a container for screens or Jetpack Compose destinations.
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("BOYKO", "Starting/Reloading main activity")
         enableEdgeToEdge()
         setContent {
-            SongScreen()
+            App()
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun PreviewSongList() {
-    SongScreen()
+fun App() {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = "song"
+    ) {
+
+        composable(route = "song") {
+            SongScreen(
+                onNavigateToPager = {
+                    navController.navigate("pager")
+                }
+            )
+        }
+
+        composable("pager") {
+            PagerScreen(
+                onNavigateToPager = {
+                    navController.navigate("pager")
+                }
+            )
+        }
+    }
 }
 

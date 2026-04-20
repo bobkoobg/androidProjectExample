@@ -14,9 +14,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidProjectExample">
         <activity
-            android:name=".PagerActivity"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

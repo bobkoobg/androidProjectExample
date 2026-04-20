@@ -1,38 +1,39 @@
 package com.example.androidprojectexample.ui.song
 
-import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.androidprojectexample.PagerActivity
 
 // UI elements that render the data on the screen.
 // You build these elements using Jetpack Compose functions to support adaptive layouts.
 
 @Preview(showBackground = true)
 @Composable
-fun SongScreen(songViewModel: SongViewModel = viewModel()) {
+private fun SongScreenPreview() {
+    SongScreen(onNavigateToPager = {})
+}
 
-    val context = LocalContext.current
+@Composable
+fun SongScreen(
+    onNavigateToPager: () -> Unit
+) {
 
+    val songViewModel: SongViewModel = viewModel()
     val state = songViewModel.uiState
 
     Log.d("BOYKO", "SongScreen: Received ${state.songs.size} songs from ViewModel")
@@ -74,8 +75,8 @@ fun SongScreen(songViewModel: SongViewModel = viewModel()) {
             )
             Button(
                 onClick =  {
-                    val pagerIntent = Intent(context, PagerActivity::class.java)
-                    context.startActivity(pagerIntent)
+                    Log.d("BOYKO", "THIS IS A CLICK EVENT - Meaning that we are going to the pager activity")
+                    onNavigateToPager()
                 }
             ) {
                 Text("Go to PagerActivity")

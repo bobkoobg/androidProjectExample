@@ -2,7 +2,7 @@ package com.example.androidprojectexample.data.local
 
 import com.example.androidprojectexample.data.model.Song
 
-class SongIO {
+class SongLocalDataSource {
 
     private var songs = emptyList<Song>()
 

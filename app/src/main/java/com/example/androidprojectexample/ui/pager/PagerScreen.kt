@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+// UI elements that render the data on the screen.
+// You build these elements using Jetpack Compose functions to support adaptive layouts.
 @Preview(showBackground = true)
 @Composable
 fun PagerScreen() {

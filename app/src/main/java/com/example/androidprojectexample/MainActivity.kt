@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.androidprojectexample.ui.song.SongScreen
 
+
+// TODO: modern apps use a single-activity architecture. A single Activity serves as a container for screens or Jetpack Compose destinations.
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

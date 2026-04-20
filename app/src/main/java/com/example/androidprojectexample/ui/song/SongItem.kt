@@ -6,6 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import com.example.androidprojectexample.ui.components.CentralizedImage
 
+// UI elements that render the data on the screen.
+// You build these elements using Jetpack Compose functions to support adaptive layouts.
+
 @Composable
 fun SongItem(title: String) {
     Row(

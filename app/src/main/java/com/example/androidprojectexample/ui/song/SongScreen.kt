@@ -24,6 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidprojectexample.PagerActivity
 
+// UI elements that render the data on the screen.
+// You build these elements using Jetpack Compose functions to support adaptive layouts.
+
 @Preview(showBackground = true)
 @Composable
 fun SongScreen(songViewModel: SongViewModel = viewModel()) {

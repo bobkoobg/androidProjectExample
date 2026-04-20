@@ -3,7 +3,7 @@ package com.example.androidprojectexample.data.remote
 import android.util.Log
 import com.example.androidprojectexample.data.model.Song
 
-class SongApi {
+class SongRemoteDataSource {
 
     fun fetchSongs(): List<Song> {
         Log.d("BOYKO", "fetchSongs: Fetching songs from API")

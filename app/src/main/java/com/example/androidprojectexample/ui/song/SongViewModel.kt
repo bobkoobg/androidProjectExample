@@ -12,7 +12,9 @@ import androidx.compose.runtime.setValue
 // State holders (such as ViewModel) that hold data, expose it to the UI, and handle logic.
 // State holders should live for the same duration as the UI element they are providing state for.
 // For example, a ViewModel for a screen should be retained in memory until the screen is removed
-// from the app's navigation back stack.
+// from the app's navigation back stack.\
+//
+// SSOT for UI state
 class SongViewModel(
     private val repository: SongRepository = SongRepository()
 ) : ViewModel() {

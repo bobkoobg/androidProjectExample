@@ -1,5 +1,6 @@
 package com.example.androidprojectexample.ui.song
 
+import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -17,13 +18,17 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.androidprojectexample.PagerActivity
 
 @Preview(showBackground = true)
 @Composable
 fun SongScreen(songViewModel: SongViewModel = viewModel()) {
+
+    val context = LocalContext.current
 
     val state = songViewModel.uiState
 
@@ -60,6 +65,17 @@ fun SongScreen(songViewModel: SongViewModel = viewModel()) {
             )
             state.songs.forEach {
                 SongItem(title = it.title)
+            }
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+            Button(
+                onClick =  {
+                    val pagerIntent = Intent(context, PagerActivity::class.java)
+                    context.startActivity(pagerIntent)
+                }
+            ) {
+                Text("Go to PagerActivity")
             }
         }
 

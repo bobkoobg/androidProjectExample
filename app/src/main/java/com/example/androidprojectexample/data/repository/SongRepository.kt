@@ -3,7 +3,9 @@ package com.example.androidprojectexample.data.repository
 import android.util.Log
 import com.example.androidprojectexample.data.local.SongLocalDataSource
 import com.example.androidprojectexample.data.model.Song
-import com.example.androidprojectexample.data.remote.SongRemoteDataSource
+import com.example.androidprojectexample.data.remote.song.SongRemoteDataSource
+import com.example.androidprojectexample.data.remote.version.VersionJsonParser
+import com.example.androidprojectexample.data.remote.version.model.MinimumVersionResponse
 
 // SSOT for app data + business logic (The repository orchestrates everything
 // - DataSources + entity class -> pushes upwards to ViewModel. The ViewModel does not know
@@ -45,5 +47,24 @@ class SongRepository(
             dao.saveSongs(remote)
             remote
         }
+    }
+
+    suspend fun addSong(title: String) : MinimumVersionResponse {
+        Log.d("BOYKO", "adding song...")
+        val response = api.getMinimumVersion()
+        Log.d("BOYKO", "response from API $response")
+        return response
+    }
+
+    suspend fun addSongRaw(title: String) : MinimumVersionResponse {
+        Log.d("BOYKO", "addSongRaw adding song...")
+
+        val responseBody = api.addSongRaw()
+        val jsonString = responseBody.string()
+
+        val parser = VersionJsonParser()
+        val parsedCode = parser.parse(jsonString)
+        Log.d("BOYKO", "addSongRaw parsed code parsedCode $parsedCode")
+        return parser.parse(jsonString)
     }
 }

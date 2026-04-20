@@ -71,5 +71,8 @@ dependencies {
     // Optional - Integration with LiveData
     implementation(libs.androidx.runtime.livedata)
 
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
 
 }

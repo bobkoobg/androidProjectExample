@@ -37,14 +37,17 @@ fun PagerScreen() {
             )
             HorizontalPager (
                 state = pagerState,
-                modifier = Modifier.fillMaxSize().background(Color.Yellow)
+                modifier = Modifier.fillMaxSize().background(Color.Red)
             ) {
                 page ->
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        Text("Page $page")
+                        Text(
+                            text = "Page $page",
+                            color = Color.White
+                        )
                     }
             }
         }

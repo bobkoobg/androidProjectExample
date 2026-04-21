@@ -10,6 +10,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.androidprojectexample.domain.song.AddSongResult
 import com.example.androidprojectexample.domain.song.AddSongUseCase
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 // State holders (such as ViewModel) that hold data, expose it to the UI, and handle logic.
@@ -20,12 +22,22 @@ import kotlinx.coroutines.launch
 // SSOT for UI state
 class SongViewModel(
     private val repository: SongRepository = SongRepository(),
+    private val addSongUseCase: AddSongUseCase = AddSongUseCase(repository)
 ) : ViewModel() {
 
     // ViewModel = what it means
 
     var uiState by mutableStateOf(SongUiState())
         private set // Anyone can read uiState. Only this class can change it
+
+    // SongViewModel does _events.tryEmit(SongUiEvent.ShowSnackbar("..."))
+    // MutableSharedFlow<SongUiEvent> - a hot stream that can emit many SongUiEvent values (like ShowSnackbar), and multiple collectors can observe it.
+    // private val _events - only the ViewModel can emit into it (tryEmit/emit). UI cannot push events back in.
+    // extraBufferCapacity = 1 - keeps one event in buffer if collector is momentarily busy/not ready. Without buffer, tryEmit can fail more easily if nothing is ready to collect right now.
+    // val events = _events.asSharedFlow() - exposes a read-only view. SongScreen can collect events, but cannot emit or mutate the flow.
+
+    private val _events = MutableSharedFlow<SongUiEvent>(extraBufferCapacity = 1)
+    val events = _events.asSharedFlow()
 
     init {
         loadSongs()
@@ -46,9 +58,6 @@ class SongViewModel(
         Log.d("BOYKO", "SongViewModel : addSong")
         viewModelScope.launch {
             try {
-
-                val addSongUseCase = AddSongUseCase(repository)
-
                 when (addSongUseCase.execute(text, isLoggedIn)) {
 
                     AddSongResult.Success -> {
@@ -64,34 +73,31 @@ class SongViewModel(
                             songs = uiState.songs + newSong,
                             inputText = ""
                         )
-
+                        _events.tryEmit(SongUiEvent.ShowSnackbar("Song \"$text\" added"))
                     }
 
                     AddSongResult.NotLoggedIn -> {
-
                         Log.d("BOYKO", "SongViewModel : addSong failed, user not logged in")
-                        // show message later
+                        _events.tryEmit(SongUiEvent.ShowSnackbar("You must be logged in to add a song."))
                     }
 
                     AddSongResult.TooShort -> {
-
                         Log.d("BOYKO", "SongViewModel : addSong failed, title too short")
-                        // show message
+                        _events.tryEmit(SongUiEvent.ShowSnackbar("Title is too short (min 4 characters)."))
                     }
 
                     AddSongResult.MissingKeyword -> {
                         Log.d("BOYKO", "SongViewModel : addSong failed, title missing keyword")
-                        // show message
+                        _events.tryEmit(SongUiEvent.ShowSnackbar("Title must contain the word \"potato\"."))
                     }
                 }
 
             } catch (e: Exception) {
                 // handle error
                 Log.d("BOYKO", "Batkooo e $e")
+                _events.tryEmit(SongUiEvent.ShowSnackbar("Something went wrong: ${e.message ?: "unknown error"}"))
             }
         }
-
-
     }
 
     private fun loadSongs() {

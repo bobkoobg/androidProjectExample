@@ -65,6 +65,6 @@ class SongRepository(
         val parser = VersionJsonParser()
         val parsedCode = parser.parse(jsonString)
         Log.d("BOYKO", "addSongRaw parsed code parsedCode $parsedCode")
-        return parser.parse(jsonString)
+        return parsedCode
     }
 }

@@ -25,7 +25,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Preview(showBackground = true)
 @Composable
 private fun SongScreenPreview() {
-    SongScreen(onNavigateToPager = {})
+    SongScreen(
+        onNavigateToPager = {}
+    )
 }
 
 @Composable
@@ -34,6 +36,7 @@ fun SongScreen(
 ) {
 
     val songViewModel: SongViewModel = viewModel()
+
     val state = songViewModel.uiState
 
     Log.d("BOYKO", "SongScreen: Received ${state.songs.size} songs from ViewModel")

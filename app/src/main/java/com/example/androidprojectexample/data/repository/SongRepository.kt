@@ -35,23 +35,23 @@ import com.example.androidprojectexample.data.remote.version.model.MinimumVersio
 // be a file, a network source, or a local database. Data-source classes are the bridge between the
 // application and the system for data operations.
 class SongRepository(
-    private val api: SongRemoteDataSource = SongRemoteDataSource(),
-    private val dao: SongLocalDataSource = SongLocalDataSource()
+    private val remote: SongRemoteDataSource = SongRemoteDataSource(),
+    private val local: SongLocalDataSource = SongLocalDataSource()
 ) {
     fun getSongs(): List<Song> {
-        val local = dao.getSongs()
+        val songs = local.getSongs()
 
-        return local.ifEmpty {
+        return songs.ifEmpty {
             Log.d("BOYKO", "SongRepository: No songs found in local storage, fetching from API")
-            val remote = api.fetchSongs()
-            dao.saveSongs(remote)
+            val remote = remote.fetchSongs()
+            local.saveSongs(remote)
             remote
         }
     }
 
     suspend fun addSong(title: String) : MinimumVersionResponse {
         Log.d("BOYKO", "adding song...")
-        val response = api.getMinimumVersion()
+        val response = remote.getMinimumVersion()
         Log.d("BOYKO", "response from API $response")
         return response
     }
@@ -59,7 +59,7 @@ class SongRepository(
     suspend fun addSongRaw(title: String) : MinimumVersionResponse {
         Log.d("BOYKO", "addSongRaw adding song...")
 
-        val responseBody = api.addSongRaw()
+        val responseBody = remote.addSongRaw()
         val jsonString = responseBody.string()
 
         val parser = VersionJsonParser()

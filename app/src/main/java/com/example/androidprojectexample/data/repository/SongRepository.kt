@@ -59,7 +59,10 @@ class SongRepository(
     suspend fun addSongRaw(title: String) : MinimumVersionResponse {
         Log.d("BOYKO", "addSongRaw adding song...")
 
-        val responseBody = remote.addSongRaw()
+        local.saveSongs(listOf())
+
+        val responseBody = remote.addSongRaw(title)
+
         val jsonString = responseBody.string()
 
         val parser = VersionJsonParser()

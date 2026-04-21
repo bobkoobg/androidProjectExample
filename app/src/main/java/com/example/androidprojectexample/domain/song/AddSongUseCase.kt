@@ -25,7 +25,7 @@ class AddSongUseCase(
         if (title.length <= 3) return AddSongResult.TooShort
         if (!title.contains("potato", ignoreCase = true)) return AddSongResult.MissingKeyword
 
-        val response = repository.addSongRaw("pesho")
+        val response = repository.addSongRaw(title)
 
         Log.d("BOYKO", "execute addSong response: $response")
 

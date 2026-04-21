@@ -67,18 +67,14 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
 
                         Log.d("BOYKO", "SongViewModel : addSong success, adding song to UI state")
 
-                        val newSong = Song(
-                            id = uiState.value.songs.size + 1,
-                            title = text
-                        )
-
                         _uiState.update { current ->
                             current.copy(
-                                songs = current.songs + newSong,
                                 inputText = ""
                             )
                         }
                         _events.tryEmit(SongUiEvent.ShowSnackbar("Song \"$text\" added"))
+
+                        loadSongs()
                     }
 
                     AddSongResult.NotLoggedIn -> {

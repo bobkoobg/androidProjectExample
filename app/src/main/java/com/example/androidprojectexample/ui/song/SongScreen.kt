@@ -2,7 +2,6 @@ package com.example.androidprojectexample.ui.song
 
 import android.util.Log
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -63,59 +62,62 @@ fun SongScreen() {
         }
     }
 
-    Log.d("BOYKO", "SongScreen: Received ${state.songs.size} songs from ViewModel")
-
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            Row {
-                BasicTextField(
-                    value = state.inputText,
-                    onValueChange = {
-                        Log.d("BOYKO", "Pisha neshto novo :)")
-                        songViewModel.onSongAddInputChange(it)
-                    },
-                    modifier = Modifier
-                        .border(1.dp, Color.Gray)
-                        .padding(8.dp)
-                )
+            item {
+                Row {
+                    BasicTextField(
+                        value = state.inputText,
+                        onValueChange = {
+                            songViewModel.onSongAddInputChange(it)
+                        },
+                        modifier = Modifier
+                            .border(1.dp, Color.Gray)
+                            .padding(8.dp)
+                    )
+                    Button(
+                        onClick = {
+                            Log.d("BOYKO", "Adding song: ${state.inputText}")
+                            focusManager.clearFocus(force = true)
+                            keyboardController?.hide()
+                            songViewModel.addSong()
+                        }
+                    ) {
+                        Text("Add song")
+                    }
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            items(state.songs) { song ->
+                SongItem(title = song.title)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
                 Button(
-                    onClick =  {
-                        Log.d("BOYKO", "Adding song: ${state.inputText}")
+                    onClick = {
+                        Log.d("BOYKO", "THIS IS A CLICK EVENT - Meaning that we want something to happen")
                         focusManager.clearFocus(force = true)
                         keyboardController?.hide()
-                        songViewModel.addSong()
+                        songViewModel.onDoSomethingClick()
                     }
                 ) {
-                    Text("Add song")
+                    Text("Do something")
                 }
-            }
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-            LazyColumn {
-                items(state.songs) { song ->
-                    SongItem(title = song.title)
-                }
-            }
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-            Button(
-                onClick =  {
-                    Log.d("BOYKO", "THIS IS A CLICK EVENT - Meaning that we want something to happen")
-                    focusManager.clearFocus(force = true)
-                    keyboardController?.hide()
-                    songViewModel.onDoSomethingClick()
-                }
-            ) {
-                Text("Do something")
             }
         }
 

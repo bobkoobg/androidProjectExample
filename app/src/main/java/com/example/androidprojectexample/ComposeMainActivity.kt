@@ -64,11 +64,11 @@ fun App() {
                 SongScreen()
             }
 
-            composable("pager") {
+            composable(route = "pager") {
                 PagerScreen()
             }
 
-            composable("profile") {
+            composable(route = "profile") {
                 ProfileScreen()
             }
         }

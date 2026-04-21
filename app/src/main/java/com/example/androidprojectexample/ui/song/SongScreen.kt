@@ -30,7 +30,9 @@ import kotlinx.coroutines.flow.collectLatest
 @Preview(showBackground = true)
 @Composable
 private fun SongScreenPreview() {
-    SongScreen(onNavigateToPager = {})
+    SongScreen(
+        onNavigateToPager = {}
+    )
 }
 
 @Composable
@@ -39,6 +41,7 @@ fun SongScreen(
 ) {
 
     val songViewModel: SongViewModel = viewModel()
+
     val state = songViewModel.uiState
     val snackbarHostState = remember { SnackbarHostState() }
 

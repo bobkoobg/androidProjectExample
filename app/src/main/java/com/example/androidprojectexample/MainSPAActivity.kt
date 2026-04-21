@@ -12,10 +12,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.androidprojectexample.ui.pager.PagerScreen
 import com.example.androidprojectexample.ui.song.SongScreen
 
-class MainActivity : ComponentActivity() {
+class MainSPAActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("BOYKO", "Starting/Reloading main activity")
+
         enableEdgeToEdge()
         setContent {
             App()

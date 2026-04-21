@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -16,6 +18,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,11 +46,16 @@ fun SongScreen(
 
     val songViewModel: SongViewModel = viewModel()
 
-    val state = songViewModel.uiState
+    // collectAsState bridges Flow → Compose state
+    val state by songViewModel.uiState.collectAsState()
+
+    // with remember → “keep it while this screen lives” ✔
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // LaunchedEffect - starts a coroutine; cancels it when Composable leaves screen; restarts if key changes
     // SongScreen collects events in LaunchedEffect and calls snackbarHostState.showSnackbar(...) - message is shown once, then gone
     LaunchedEffect(Unit) {
+        // collectLatest - cancels previous work if new event comes
         songViewModel.events.collectLatest { event ->
             when (event) {
                 is SongUiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(event.message)
@@ -87,8 +96,10 @@ fun SongScreen(
             Spacer(
                 modifier = Modifier.height(16.dp)
             )
-            state.songs.forEach {
-                SongItem(title = it.title)
+            LazyColumn {
+                items(state.songs) { song ->
+                    SongItem(title = song.title)
+                }
             }
             Spacer(
                 modifier = Modifier.height(16.dp)

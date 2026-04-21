@@ -11,7 +11,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.androidprojectexample.BazaarApplication
 import com.example.androidprojectexample.domain.song.AddSongResult
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 // State holders (such as ViewModel) that hold data, expose it to the UI, and handle logic.
@@ -27,8 +30,12 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
     private val addSongUseCase = container.addSongUseCase
     private val repository = container.songRepository
 
-    var uiState by mutableStateOf(SongUiState())
-        private set // Anyone can read uiState. Only this class can change it
+    // backing property pattern - UI can read state , UI cannot modify state
+    // engine room (private control)
+    // If it should persist → state
+    private val _uiState = MutableStateFlow(SongUiState())
+    // dashboard (public view)
+    val uiState: StateFlow<SongUiState> = _uiState
 
     // SongViewModel does _events.tryEmit(SongUiEvent.ShowSnackbar("..."))
     // MutableSharedFlow<SongUiEvent> - a hot stream that can emit many SongUiEvent values (like ShowSnackbar), and multiple collectors can observe it.
@@ -36,6 +43,7 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
     // extraBufferCapacity = 1 - keeps one event in buffer if collector is momentarily busy/not ready. Without buffer, tryEmit can fail more easily if nothing is ready to collect right now.
     // val events = _events.asSharedFlow() - exposes a read-only view. SongScreen can collect events, but cannot emit or mutate the flow.
 
+    // If it should happen once → event
     private val _events = MutableSharedFlow<SongUiEvent>(extraBufferCapacity = 1)
     val events = _events.asSharedFlow()
 
@@ -44,13 +52,11 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onSongAddInputChange(text: String) {
-        uiState = uiState.copy(
-            inputText = text
-        )
+        _uiState.update { it.copy(inputText = text) }
     }
 
     fun addSong() {
-        val text = uiState.inputText
+        val text = uiState.value.inputText
         if (text.isBlank()) return
 
         val isLoggedIn = true // hardcoded for now, but later we will get it from somewhere else
@@ -65,14 +71,16 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
                         Log.d("BOYKO", "SongViewModel : addSong success, adding song to UI state")
 
                         val newSong = Song(
-                            id = uiState.songs.size + 1,
+                            id = uiState.value.songs.size + 1,
                             title = text
                         )
 
-                        uiState = uiState.copy(
-                            songs = uiState.songs + newSong,
-                            inputText = ""
-                        )
+                        _uiState.update { current ->
+                            current.copy(
+                                songs = current.songs + newSong,
+                                inputText = ""
+                            )
+                        }
                         _events.tryEmit(SongUiEvent.ShowSnackbar("Song \"$text\" added"))
                     }
 
@@ -102,8 +110,18 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun loadSongs() {
         Log.d("BOYKO", "SongViewModel: Loading songs from repository")
-        uiState = uiState.copy(
-            songs = repository.getSongs()
-        )
+
+        viewModelScope.launch {
+            Log.d("BOYKO", "SongViewModel: Calling repository.getSongs()")
+            val songs = repository.getSongs()
+            Log.d("BOYKO", "SongViewModel: Songs Loaded from repository!")
+
+            _uiState.update { current ->
+                current.copy(
+                    songs = songs
+                )
+            }
+        }
+
     }
 }

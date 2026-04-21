@@ -5,10 +5,17 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.androidprojectexample.ui.components.BottomBar
+import com.example.androidprojectexample.ui.components.TopBar
 import com.example.androidprojectexample.ui.pager.PagerScreen
 import com.example.androidprojectexample.ui.song.SongScreen
 
@@ -29,26 +36,38 @@ class ComposeMainActivity : ComponentActivity() {
 fun App() {
     val navController = rememberNavController()
 
-    NavHost(
-        navController = navController,
-        startDestination = "song"
-    ) {
+    Scaffold (
+        topBar = { TopBar() },
+        bottomBar = { BottomBar(navController) }
+    ) { padding ->
 
-        composable(route = "song") {
-            SongScreen(
-                onNavigateToPager = {
-                    navController.navigate("pager")
-                }
-            )
+        NavHost(
+            navController = navController,
+            startDestination = "song",
+            modifier = Modifier.padding(padding)
+        ) {
+
+            composable(route = "song") {
+                SongScreen(
+                    onNavigateToPager = {
+                        navController.navigate("pager")
+                    }
+                )
+            }
+
+            composable("pager") {
+                PagerScreen(
+                    onNavigateToPager = {
+                        navController.navigate("pager")
+                    }
+                )
+            }
         }
 
-        composable("pager") {
-            PagerScreen(
-                onNavigateToPager = {
-                    navController.navigate("pager")
-                }
-            )
-        }
     }
+
 }
+
+
+
 

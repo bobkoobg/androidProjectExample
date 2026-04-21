@@ -2,9 +2,9 @@ package com.example.androidprojectexample.ui.components
 
 import android.util.Log
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -23,7 +23,7 @@ fun BottomBarPreview() {
 
 @Composable
 fun BottomBar(navController: NavController) {
-    val items = listOf("home", "search", "profile")
+    val items = listOf("song", "pager", "profile")
     val currentRoute =
         navController
             .currentBackStackEntryAsState()
@@ -31,23 +31,23 @@ fun BottomBar(navController: NavController) {
             ?.destination
             ?.route
 
-    NavigationBar() {
+    NavigationBar {
         items.forEach { route ->
             NavigationBarItem(
                 selected = currentRoute == route,
                 onClick = {
                     Log.d("BOYKO", "Navigating to $route")
-//                    navController.navigate(route) {
-//                        popUpTo("home") { saveState = true }
-//                        launchSingleTop = true
-//                        restoreState = true
-//                    }
+                    navController.navigate(route) {
+                        popUpTo("song") { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
                 icon = {
                     Icon(
                         imageVector = when (route) {
-                            "home" -> Icons.Default.Home
-                            "search" -> Icons.Default.Search
+                            "song" -> Icons.Default.MusicNote
+                            "pager" -> Icons.Default.Pages
                             else -> Icons.Default.Person
                         },
                         contentDescription = route

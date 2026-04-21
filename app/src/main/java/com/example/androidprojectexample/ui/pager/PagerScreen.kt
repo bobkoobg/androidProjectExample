@@ -23,15 +23,12 @@ import androidx.compose.ui.unit.dp
 @Preview(showBackground = true)
 @Composable
 private fun PagerScreenPreview() {
-    PagerScreen(onNavigateToPager = {})
+    PagerScreen()
 }
 
 
 @Composable
-fun PagerScreen(
-    onNavigateToPager: () -> Unit
-) {
-
+fun PagerScreen() {
     // UI = how it moves
     val pagerState = rememberPagerState(pageCount = { 3 })
 

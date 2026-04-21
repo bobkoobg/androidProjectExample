@@ -7,8 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -17,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.androidprojectexample.ui.components.BottomBar
 import com.example.androidprojectexample.ui.components.TopBar
 import com.example.androidprojectexample.ui.pager.PagerScreen
+import com.example.androidprojectexample.ui.profile.ProfileScreen
 import com.example.androidprojectexample.ui.song.SongScreen
 
 class ComposeMainActivity : ComponentActivity() {
@@ -48,26 +47,18 @@ fun App() {
         ) {
 
             composable(route = "song") {
-                SongScreen(
-                    onNavigateToPager = {
-                        navController.navigate("pager")
-                    }
-                )
+                SongScreen()
             }
 
             composable("pager") {
-                PagerScreen(
-                    onNavigateToPager = {
-                        navController.navigate("pager")
-                    }
-                )
+                PagerScreen()
+            }
+
+            composable("profile") {
+                ProfileScreen()
             }
         }
 
     }
 
 }
-
-
-
-

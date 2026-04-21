@@ -23,6 +23,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,16 +36,11 @@ import kotlinx.coroutines.flow.collectLatest
 @Preview(showBackground = true)
 @Composable
 private fun SongScreenPreview() {
-    SongScreen(
-        onNavigateToPager = {}
-    )
+    SongScreen()
 }
 
 @Composable
-fun SongScreen(
-    onNavigateToPager: () -> Unit
-) {
-
+fun SongScreen() {
     val songViewModel: SongViewModel = viewModel()
 
     // collectAsState bridges Flow → Compose state
@@ -51,6 +48,8 @@ fun SongScreen(
 
     // with remember → “keep it while this screen lives” ✔
     val snackbarHostState = remember { SnackbarHostState() }
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     // LaunchedEffect - starts a coroutine; cancels it when Composable leaves screen; restarts if key changes
     // SongScreen collects events in LaunchedEffect and calls snackbarHostState.showSnackbar(...) - message is shown once, then gone
@@ -87,6 +86,8 @@ fun SongScreen(
                 Button(
                     onClick =  {
                         Log.d("BOYKO", "Adding song: ${state.inputText}")
+                        focusManager.clearFocus(force = true)
+                        keyboardController?.hide()
                         songViewModel.addSong()
                     }
                 ) {
@@ -106,11 +107,13 @@ fun SongScreen(
             )
             Button(
                 onClick =  {
-                    Log.d("BOYKO", "THIS IS A CLICK EVENT - Meaning that we are going to the pager activity")
-                    onNavigateToPager()
+                    Log.d("BOYKO", "THIS IS A CLICK EVENT - Meaning that we want something to happen")
+                    focusManager.clearFocus(force = true)
+                    keyboardController?.hide()
+                    songViewModel.onDoSomethingClick()
                 }
             ) {
-                Text("Go to PagerActivity")
+                Text("Do something")
             }
         }
 

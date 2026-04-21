@@ -2,10 +2,7 @@ package com.example.androidprojectexample.ui.song
 
 import android.app.Application
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import com.example.androidprojectexample.data.model.Song
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidprojectexample.BazaarApplication
@@ -106,6 +103,10 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
                 _events.tryEmit(SongUiEvent.ShowSnackbar("Something went wrong: ${e.message ?: "unknown error"}"))
             }
         }
+    }
+
+    fun onDoSomethingClick() {
+        _events.tryEmit(SongUiEvent.ShowSnackbar("Song button clicked"))
     }
 
     private fun loadSongs() {

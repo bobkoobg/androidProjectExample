@@ -12,7 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.androidprojectexample.ui.pager.PagerScreen
 import com.example.androidprojectexample.ui.song.SongScreen
 
-class MainSPAActivity : ComponentActivity() {
+class ComposeMainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

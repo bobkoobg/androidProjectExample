@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidProjectExample">
         <activity
-            android:name=".MainSPAActivity"
+            android:name=".ComposeMainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

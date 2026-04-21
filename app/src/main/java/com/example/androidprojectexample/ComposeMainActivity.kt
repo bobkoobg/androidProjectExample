@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.androidprojectexample.ui.components.BottomBar
 import com.example.androidprojectexample.ui.components.TopBar
@@ -34,9 +35,22 @@ class ComposeMainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val topBarTitle = when (currentRoute) {
+        "pager" -> "Pager"
+        "profile" -> "Profile"
+        else -> "Songs"
+    }
+    val showBackButton = currentRoute != "song"
 
     Scaffold (
-        topBar = { TopBar() },
+        topBar = {
+            TopBar(
+                title = topBarTitle,
+                showBackButton = showBackButton,
+                onBackClick = { navController.navigateUp() }
+            )
+        },
         bottomBar = { BottomBar(navController) }
     ) { padding ->
 

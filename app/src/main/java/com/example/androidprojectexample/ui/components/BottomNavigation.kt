@@ -36,11 +36,11 @@ fun BottomBar(navController: NavController) {
             NavigationBarItem(
                 selected = currentRoute == route,
                 onClick = {
+                    if (currentRoute == route) return@NavigationBarItem
+
                     Log.d("BOYKO", "Navigating to $route")
                     navController.navigate(route) {
-                        popUpTo("song") { saveState = true }
                         launchSingleTop = true
-                        restoreState = true
                     }
                 },
                 icon = {

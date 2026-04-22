@@ -6,14 +6,22 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -30,6 +38,9 @@ import com.example.androidprojectexample.ui.song.SongScreen
 import com.example.androidprojectexample.ui.overlay.RightOverlayMainContent
 import com.example.androidprojectexample.ui.overlay.RightOverlayProfileContent
 import com.example.androidprojectexample.ui.overlay.RightOverlayUnknownContent
+import com.example.androidprojectexample.ui.startup.AppStartupState
+import com.example.androidprojectexample.startup.StartupPayload
+import com.example.androidprojectexample.startup.StartupViewModel
 
 class ComposeMainActivity : ComponentActivity() {
 
@@ -46,6 +57,50 @@ class ComposeMainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
+    val startupViewModel: StartupViewModel = viewModel()
+    val startupState by startupViewModel.startupState.collectAsState()
+
+    Log.d("BOYKO", "~~~ Current startup state: $startupState ~~~")
+
+    // LaunchedEffect == .post { ... }
+    LaunchedEffect(Unit) {
+        Log.d("BOYKO", "~~~ STARTING BOOTSTRAP ~~~")
+        startupViewModel.startBootstrap()
+    }
+
+    when (val state = startupState) {
+        AppStartupState.Idle,
+        is AppStartupState.Loading -> {
+            Log.d("BOYKO", "~~~ BOOTSTRAP IS LOADING ~~~")
+            val step = (state as? AppStartupState.Loading)?.step ?: "Preparing app"
+            StartupLoadingScreen(step = step)
+        }
+        is AppStartupState.Error -> {
+            StartupErrorScreen(
+                message = state.message,
+                onRetry = { startupViewModel.retryBootstrap() }
+            )
+        }
+        is AppStartupState.Ready -> {
+            Log.d("BOYKO", "~~~ BOOTSTRAP IS READY  state.payload ${state.payload} ~~~")
+            if (state.payload.userId != null) {
+                Log.d("BOYKO", "~~~ YEY, WE ARE DONE :) CASE A ~~~")
+                AppMainContent()
+            } else if (state.payload.guestId != null) {
+                Log.d("BOYKO", "~~~ YEY, WE ARE DONE :) CASE B ~~~")
+                LoggedOutRecommendationsScreen()
+            } else if (state.payload.isMaintenance) {
+                StartupErrorScreen(
+                    message = "The app is currently under maintenance. Please try again later.",
+                    onRetry = { startupViewModel.retryBootstrap() }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AppMainContent() {
     val navController = rememberNavController()
     val uiStateViewModel: AppUiStateViewModel = viewModel()
     val uiState by uiStateViewModel.uiState.collectAsState()
@@ -131,3 +186,57 @@ fun App() {
         }
     }
 }
+
+@Composable
+private fun LoggedOutRecommendationsScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(24.dp)
+        ) {
+            Text(text = "Welcome guest")
+            Text(text = "Hello Motto!")
+        }
+    }
+}
+
+@Composable
+private fun StartupLoadingScreen(step: String) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            CircularProgressIndicator()
+            Text(text = "Loading app data...")
+            Text(text = step)
+        }
+    }
+}
+
+@Composable
+private fun StartupErrorScreen(message: String, onRetry: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(text = "Startup failed")
+            Text(text = message)
+            Button(onClick = onRetry) {
+                Text("Retry")
+            }
+        }
+    }
+}
+

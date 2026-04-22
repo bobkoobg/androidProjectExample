@@ -41,7 +41,13 @@ private fun SongScreenPreview() {
 
 @Composable
 fun SongScreen() {
+    Log.d("BOYKO", "Composable SongScreen loaded!")
     val songViewModel: SongViewModel = viewModel()
+
+    LaunchedEffect(Unit) {
+        Log.d("BOYKO", "LaunchedEffect triggered only once!")
+        songViewModel.loadSongs()
+    }
 
     // collectAsState bridges Flow → Compose state
     val state by songViewModel.uiState.collectAsState()
@@ -54,6 +60,8 @@ fun SongScreen() {
     // LaunchedEffect - starts a coroutine; cancels it when Composable leaves screen; restarts if key changes
     // SongScreen collects events in LaunchedEffect and calls snackbarHostState.showSnackbar(...) - message is shown once, then gone
     LaunchedEffect(Unit) {
+        Log.d("BOYKO", "events triggered hehe!")
+
         // collectLatest - cancels previous work if new event comes
         songViewModel.events.collectLatest { event ->
             when (event) {

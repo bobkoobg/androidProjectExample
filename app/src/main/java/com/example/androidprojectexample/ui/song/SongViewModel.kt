@@ -2,15 +2,17 @@ package com.example.androidprojectexample.ui.song
 
 import android.app.Application
 import android.util.Log
-import com.example.androidprojectexample.data.model.Song
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidprojectexample.BazaarApplication
 import com.example.androidprojectexample.domain.song.AddSongResult
+import com.example.androidprojectexample.ui.startup.AppStartupState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -44,10 +46,6 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
     private val _events = MutableSharedFlow<SongUiEvent>(extraBufferCapacity = 1)
     val events = _events.asSharedFlow()
 
-    init {
-        loadSongs()
-    }
-
     fun onSongAddInputChange(text: String) {
         _uiState.update { it.copy(inputText = text) }
     }
@@ -69,6 +67,7 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
 
                         _uiState.update { current ->
                             current.copy(
+                                songs = listOf(),
                                 inputText = ""
                             )
                         }
@@ -105,8 +104,13 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
         _events.tryEmit(SongUiEvent.ShowSnackbar("Song button clicked"))
     }
 
-    private fun loadSongs() {
+    fun loadSongs() {
         Log.d("BOYKO", "SongViewModel: Loading songs from repository")
+
+        if (_uiState.value.songs.isNotEmpty()) {
+            Log.d("BOYKO", "ALREADY LOADED.. LET GO!")
+            return
+        }
 
         viewModelScope.launch {
             Log.d("BOYKO", "SongViewModel: Calling repository.getSongs()")

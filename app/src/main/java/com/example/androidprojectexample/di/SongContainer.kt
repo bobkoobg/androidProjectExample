@@ -10,6 +10,7 @@ class SongContainer(
     private val api: SongApi
 )  {
 
+    // data layer
     private val songRemoteDataSource by lazy {
         SongRemoteDataSource(api)
     }
@@ -22,6 +23,7 @@ class SongContainer(
         SongRepository(songRemoteDataSource, songLocalDataSource)
     }
 
+    // domain layer
     val addSongUseCase by lazy {
         AddSongUseCase(songRepository)
     }

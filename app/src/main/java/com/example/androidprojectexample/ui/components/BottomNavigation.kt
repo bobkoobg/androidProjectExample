@@ -2,6 +2,7 @@ package com.example.androidprojectexample.ui.components
 
 import android.util.Log
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AllInclusive
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.Person
@@ -23,7 +24,7 @@ fun BottomBarPreview() {
 
 @Composable
 fun BottomBar(navController: NavController) {
-    val items = listOf("song", "pager", "profile")
+    val items = listOf("song", "pager", "profile", "user menu")
     val currentRoute =
         navController
             .currentBackStackEntryAsState()
@@ -48,6 +49,7 @@ fun BottomBar(navController: NavController) {
                         imageVector = when (route) {
                             "song" -> Icons.Default.MusicNote
                             "pager" -> Icons.Default.Pages
+                            "user menu" -> Icons.Default.AllInclusive
                             else -> Icons.Default.Person
                         },
                         contentDescription = route

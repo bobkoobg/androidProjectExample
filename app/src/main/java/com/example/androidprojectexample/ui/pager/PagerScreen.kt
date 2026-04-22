@@ -126,7 +126,6 @@ private fun PagerPageContent(page: Int, state: PagerPageUiState) {
                     { index, item -> "$page-$index-$item" }
                 ) { _, item ->
                     Surface(
-                        tonalElevation = 2.dp,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(

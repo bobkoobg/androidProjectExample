@@ -8,6 +8,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -26,48 +31,74 @@ import androidx.compose.ui.unit.dp
 @Preview(showBackground = true)
 @Composable
 fun TopBarPreview() {
-    TopBar(title = "Title", showBackButton = true)
+    TopBar(title = "Title", showBackButton = true, showMoreButton = true)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TopBarPreviewTwo() {
+    TopBar(title = "Title", showBackButton = false, showMoreButton = true)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TopBarPreviewThree() {
+    TopBar(title = "Title", showBackButton = false, showMoreButton = false)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TopBarPreviewFour() {
+    TopBar(title = "Title", showBackButton = true, showMoreButton = false)
 }
 
 @Composable
 fun TopBar(
     title: String,
     showBackButton: Boolean,
-    onBackClick: () -> Unit = {}
+    showMoreButton: Boolean,
+    onBackClick: () -> Unit = {},
+    onMoreClick: () -> Unit = {}
 ) {
-    Surface(
-        tonalElevation = 3.dp,
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+            .height(64.dp)
+            .padding(horizontal = 4.dp)
+            .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.End)),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .height(64.dp)
-                .padding(horizontal = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (showBackButton) {
-                IconButton(onClick = onBackClick) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                }
-            } else {
-                // Keep horizontal symmetry so the title stays centered.
-                Box(modifier = Modifier.width(48.dp))
+        if (showBackButton) {
+            IconButton(onClick = onBackClick) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
+        } else {
+            // Keep horizontal symmetry so the title stays centered.
+            Box(modifier = Modifier.width(48.dp))
+        }
 
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f)
-            )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.weight(1f)
+        )
 
+        if(showMoreButton) {
             IconButton(onClick = {
-                Log.d("BOYKO", "Settings button clicked")
+                Log.d("BOYKO", "TopNavigation: More button clicked")
+                onMoreClick()
             }) {
                 Icon(Icons.Default.MoreVert, contentDescription = "Settings")
             }
+        } else {
+            // Keep horizontal symmetry so the title stays centered.
+            Box(modifier = Modifier.width(48.dp))
         }
+    }
+    Surface(
+        modifier = Modifier.fillMaxWidth()
+    ) {
     }
 }

@@ -60,45 +60,47 @@ fun TopBar(
     onBackClick: () -> Unit = {},
     onMoreClick: () -> Unit = {}
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .statusBarsPadding()
-            .height(64.dp)
-            .padding(horizontal = 4.dp)
-            .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.End)),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (showBackButton) {
-            IconButton(onClick = onBackClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-            }
-        } else {
-            // Keep horizontal symmetry so the title stays centered.
-            Box(modifier = Modifier.width(48.dp))
-        }
-
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.weight(1f)
-        )
-
-        if(showMoreButton) {
-            IconButton(onClick = {
-                Log.d("BOYKO", "TopNavigation: More button clicked")
-                onMoreClick()
-            }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "Settings")
-            }
-        } else {
-            // Keep horizontal symmetry so the title stays centered.
-            Box(modifier = Modifier.width(48.dp))
-        }
-    }
     Surface(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = MaterialTheme.colorScheme.onSurface
     ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .height(64.dp)
+                .padding(horizontal = 4.dp)
+                .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.End)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (showBackButton) {
+                IconButton(onClick = onBackClick) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
+            } else {
+                // Keep horizontal symmetry so the title stays centered.
+                Box(modifier = Modifier.width(48.dp))
+            }
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f)
+            )
+
+            if (showMoreButton) {
+                IconButton(onClick = {
+                    Log.d("BOYKO", "TopNavigation: More button clicked")
+                    onMoreClick()
+                }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "Settings")
+                }
+            } else {
+                // Keep horizontal symmetry so the title stays centered.
+                Box(modifier = Modifier.width(48.dp))
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.androidprojectexample.ui.song
 
+import com.example.androidprojectexample.data.model.Song
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
@@ -33,12 +34,6 @@ import kotlinx.coroutines.flow.collectLatest
 // UI elements that render the data on the screen.
 // You build these elements using Jetpack Compose functions to support adaptive layouts.
 
-@Preview(showBackground = true)
-@Composable
-private fun SongScreenPreview() {
-    SongScreen()
-}
-
 @Composable
 fun SongScreen() {
     Log.d("BOYKO", "Composable SongScreen loaded!")
@@ -70,6 +65,33 @@ fun SongScreen() {
         }
     }
 
+    SongScreenContent(
+        state = state,
+        onSongAddInputChange = songViewModel::onSongAddInputChange,
+        onAddSong = {
+            Log.d("BOYKO", "Adding song: ${state.inputText}")
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
+            songViewModel.addSong()
+        },
+        onDoSomethingClick = {
+            Log.d("BOYKO", "THIS IS A CLICK EVENT - Meaning that we want something to happen")
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
+            songViewModel.onDoSomethingClick()
+        },
+        snackbarHostState = snackbarHostState
+    )
+}
+
+@Composable
+fun SongScreenContent(
+    state: SongUiState,
+    onSongAddInputChange: (String) -> Unit,
+    onAddSong: () -> Unit,
+    onDoSomethingClick: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+) {
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
@@ -83,21 +105,12 @@ fun SongScreen() {
                 Row {
                     BasicTextField(
                         value = state.inputText,
-                        onValueChange = {
-                            songViewModel.onSongAddInputChange(it)
-                        },
+                        onValueChange = onSongAddInputChange,
                         modifier = Modifier
                             .border(1.dp, Color.Gray)
                             .padding(8.dp)
                     )
-                    Button(
-                        onClick = {
-                            Log.d("BOYKO", "Adding song: ${state.inputText}")
-                            focusManager.clearFocus(force = true)
-                            keyboardController?.hide()
-                            songViewModel.addSong()
-                        }
-                    ) {
+                    Button(onClick = onAddSong) {
                         Text("Add song")
                     }
                 }
@@ -116,18 +129,28 @@ fun SongScreen() {
             }
 
             item {
-                Button(
-                    onClick = {
-                        Log.d("BOYKO", "THIS IS A CLICK EVENT - Meaning that we want something to happen")
-                        focusManager.clearFocus(force = true)
-                        keyboardController?.hide()
-                        songViewModel.onDoSomethingClick()
-                    }
-                ) {
+                Button(onClick = onDoSomethingClick) {
                     Text("Do something")
                 }
             }
         }
-
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SongScreenPreview() {
+    SongScreenContent(
+        state = SongUiState(
+            songs = listOf(
+                Song(id = 1, title = "Numb"),
+                Song(id = 2, title = "In the End"),
+                Song(id = 3, title = "Breaking the Habit")
+            ),
+            inputText = "Papercut"
+        ),
+        onSongAddInputChange = {},
+        onAddSong = {},
+        onDoSomethingClick = {}
+    )
 }

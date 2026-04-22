@@ -1,4 +1,4 @@
-package com.example.androidprojectexample.ui.overlay
+package com.example.androidprojectexample.ui.components.rightOverlay
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,12 +12,12 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Preview(showBackground = true)
 @Composable
-fun RightOverlayProfileContentPreview() {
-    RightOverlayProfileContent()
+fun RightOverlayProfileScreenPreview() {
+    RightOverlayProfileScreen()
 }
 
 @Composable
-fun RightOverlayProfileContent() {
+fun RightOverlayProfileScreen() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center

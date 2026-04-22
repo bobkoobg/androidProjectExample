@@ -35,12 +35,14 @@ import com.example.androidprojectexample.ui.components.TopBar
 import com.example.androidprojectexample.ui.pager.PagerScreen
 import com.example.androidprojectexample.ui.profile.ProfileScreen
 import com.example.androidprojectexample.ui.song.SongScreen
-import com.example.androidprojectexample.ui.overlay.RightOverlayMainContent
-import com.example.androidprojectexample.ui.overlay.RightOverlayProfileContent
-import com.example.androidprojectexample.ui.overlay.RightOverlayUnknownContent
+import com.example.androidprojectexample.ui.components.rightOverlay.RightOverlayMainScreen
+import com.example.androidprojectexample.ui.components.rightOverlay.RightOverlayProfileScreen
+import com.example.androidprojectexample.ui.components.rightOverlay.RightOverlayUnknownScreen
 import com.example.androidprojectexample.ui.startup.AppStartupState
-import com.example.androidprojectexample.startup.StartupPayload
 import com.example.androidprojectexample.startup.StartupViewModel
+import com.example.androidprojectexample.ui.components.UserMenuOverlayPanel
+import com.example.androidprojectexample.ui.components.userMenuOverlay.UserMenuGuestOverlayScreen
+import com.example.androidprojectexample.ui.components.userMenuOverlay.UserMenuOverlayScreen
 
 class ComposeMainActivity : ComponentActivity() {
 
@@ -85,10 +87,10 @@ fun App() {
             Log.d("BOYKO", "~~~ BOOTSTRAP IS READY  state.payload ${state.payload} ~~~")
             if (state.payload.userId != null) {
                 Log.d("BOYKO", "~~~ YEY, WE ARE DONE :) CASE A ~~~")
-                AppMainContent()
+                AppMainContent(isLoggedIn = true)
             } else if (state.payload.guestId != null) {
                 Log.d("BOYKO", "~~~ YEY, WE ARE DONE :) CASE B ~~~")
-                LoggedOutRecommendationsScreen()
+                AppMainContent(isLoggedIn = false)
             } else if (state.payload.isMaintenance) {
                 StartupErrorScreen(
                     message = "The app is currently under maintenance. Please try again later.",
@@ -100,12 +102,13 @@ fun App() {
 }
 
 @Composable
-private fun AppMainContent() {
+private fun AppMainContent(isLoggedIn: Boolean = true) {
     val navController = rememberNavController()
     val uiStateViewModel: AppUiStateViewModel = viewModel()
     val uiState by uiStateViewModel.uiState.collectAsState()
-    val isOverlayOpen = uiState.isOverlayOpen
+    val isRightOverlayOpen = uiState.isRightOverlayOpen
     val overlayContent = uiState.rightOverlayContent
+    val isUserMenuOpen = uiState.isUserMenuOpen
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     val topBarTitle = when (currentRoute) {
         "pager" -> "Pager"
@@ -114,8 +117,11 @@ private fun AppMainContent() {
     }
     val showBackButton = currentRoute != "song"
 
-    BackHandler(enabled = isOverlayOpen) {
-        uiStateViewModel.closeOverlay()
+    BackHandler(enabled = isRightOverlayOpen || isUserMenuOpen) {
+        if (isUserMenuOpen)
+            uiStateViewModel.closeUserMenu()
+        else
+            uiStateViewModel.closeRightOverlay()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -136,7 +142,10 @@ private fun AppMainContent() {
                     }
                 )
             },
-            bottomBar = { BottomBar(navController) }
+            bottomBar = { BottomBar(navController, onUserMenuClick = {
+                Log.d("BOYKO", "ComposeMainActivity: Opening user menu!")
+                uiStateViewModel.openUserMenu()
+            }) }
         ) { padding ->
 
             NavHost(
@@ -165,41 +174,39 @@ private fun AppMainContent() {
         }
 
         RightOverlayPanel(
-            isVisible = isOverlayOpen,
+            isVisible = isRightOverlayOpen,
             onClose = {
                 Log.d("BOYKO", "Closing overlay panel!")
-                uiStateViewModel.closeOverlay()
+                uiStateViewModel.closeRightOverlay()
             }
         ) {
-            when (overlayContent) {
-                is RightOverlayContent.Main -> {
-                    RightOverlayMainContent(onClose = { uiStateViewModel.closeOverlay() })
+            if (overlayContent != null) {
+                when (overlayContent) {
+                    is RightOverlayContent.Main -> {
+                        RightOverlayMainScreen(onClose = { uiStateViewModel.closeRightOverlay() })
+                    }
+                    is RightOverlayContent.Profile -> {
+                        RightOverlayProfileScreen()
+                    }
+                    is RightOverlayContent.Unknown -> {
+                        RightOverlayUnknownScreen()
+                    }
                 }
-                is RightOverlayContent.Profile -> {
-                    RightOverlayProfileContent()
-                }
-                is RightOverlayContent.Unknown -> {
-                    RightOverlayUnknownContent()
-                }
-                RightOverlayContent.None -> {}
             }
         }
-    }
-}
 
-@Composable
-private fun LoggedOutRecommendationsScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(24.dp)
+        UserMenuOverlayPanel (
+            isVisible = isUserMenuOpen,
+            onClose = {
+                Log.d("BOYKO", "Closing user menu!")
+                uiStateViewModel.closeUserMenu()
+            }
         ) {
-            Text(text = "Welcome guest")
-            Text(text = "Hello Motto!")
+            if (isLoggedIn) {
+                UserMenuOverlayScreen (onClose = { uiStateViewModel.closeUserMenu() })
+            } else {
+                UserMenuGuestOverlayScreen(onClose = { uiStateViewModel.closeUserMenu() })
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ class CurrentUserRemoteDataSource(
     private val api: SongApi
 ) {
 
-    private val shouldReturnUserId = true
+    private val shouldReturnUserId = false
 
     suspend fun getCurrentUser(uuidHeader: String): CurrentUser? {
         delay(1500)

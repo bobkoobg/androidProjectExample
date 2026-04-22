@@ -10,15 +10,19 @@ class AppUiStateViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState
 
-    fun openOverlay() {
-        _uiState.update { it.copy(isOverlayOpen = true) }
-    }
-
     fun openRightOverlay(content: RightOverlayContent) {
-        _uiState.update { it.copy(isOverlayOpen = true, rightOverlayContent = content) }
+        _uiState.update { it.copy(isRightOverlayOpen = true, rightOverlayContent = content) }
     }
 
-    fun closeOverlay() {
-        _uiState.update { it.copy(isOverlayOpen = false, rightOverlayContent = RightOverlayContent.None) }
+    fun closeRightOverlay() {
+        _uiState.update { it.copy(isRightOverlayOpen = false) }
+    }
+
+    fun openUserMenu() {
+        _uiState.update { it.copy(isUserMenuOpen = true) }
+    }
+
+    fun closeUserMenu() {
+        _uiState.update { it.copy(isUserMenuOpen = false) }
     }
 }

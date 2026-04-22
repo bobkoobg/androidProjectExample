@@ -23,7 +23,7 @@ fun BottomBarPreview() {
 }
 
 @Composable
-fun BottomBar(navController: NavController) {
+fun BottomBar(navController: NavController, onUserMenuClick: () -> Unit = {}) {
     val items = listOf("song", "pager", "profile", "user menu")
     val currentRoute =
         navController
@@ -37,6 +37,10 @@ fun BottomBar(navController: NavController) {
             NavigationBarItem(
                 selected = currentRoute == route,
                 onClick = {
+                    if (route == "user menu") {
+                        onUserMenuClick()
+                        return@NavigationBarItem
+                    }
                     if (currentRoute == route) return@NavigationBarItem
 
                     Log.d("BOYKO", "Navigating to $route")

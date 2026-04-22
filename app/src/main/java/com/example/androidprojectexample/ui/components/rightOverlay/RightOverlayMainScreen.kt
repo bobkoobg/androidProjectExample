@@ -1,4 +1,4 @@
-package com.example.androidprojectexample.ui.overlay
+package com.example.androidprojectexample.ui.components.rightOverlay
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -27,12 +27,12 @@ import androidx.compose.ui.unit.dp
 
 @Preview(showBackground = true)
 @Composable
-fun RightOverlayMainContentPreview() {
-    RightOverlayMainContent(onClose = {})
+fun RightOverlayMainScreenPreview() {
+    RightOverlayMainScreen(onClose = {})
 }
 
 @Composable
-fun RightOverlayMainContent(onClose: () -> Unit) {
+fun RightOverlayMainScreen(onClose: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()

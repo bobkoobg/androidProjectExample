@@ -2,6 +2,7 @@ package com.example.androidprojectexample.ui.pager
 
 data class PagerPageUiState(
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val isLoaded: Boolean = false,
     val title: String = "",
     val body: String = "",

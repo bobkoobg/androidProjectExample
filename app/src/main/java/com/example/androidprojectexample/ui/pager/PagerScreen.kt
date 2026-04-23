@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,7 +44,8 @@ private fun PagerScreenPreview() {
             loadCount = 1,
             items = List(5) { "Preview element ${it + 1}" },
             imageDescription = "Preview footer image"
-        )
+        ),
+        onRefresh = {}
     )
 }
 
@@ -69,12 +72,22 @@ fun PagerScreen() {
             pagerViewModel.loadPageIfNeeded(page)
         }
 
-        PagerPageContent(page = page, state = pageState)
+        PagerPageContent(
+            page = page,
+            state = pageState,
+            onRefresh = { pagerViewModel.refreshPage(page) }
+        )
     }
 }
 
 @Composable
-private fun PagerPageContent(page: Int, state: PagerPageUiState) {
+private fun PagerPageContent(
+    page: Int,
+    state: PagerPageUiState,
+    onRefresh: () -> Unit
+) {
+    val pullToRefreshState = rememberPullToRefreshState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -94,64 +107,71 @@ private fun PagerPageContent(page: Int, state: PagerPageUiState) {
                 modifier = Modifier.size(72.dp)
             )
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            PullToRefreshBox(
+                state = pullToRefreshState,
+                isRefreshing = state.isRefreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize()
             ) {
-                item {
-                    Text(
-                        text = state.title,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = Color.White
-                    )
-                }
-
-                item {
-                    Text(
-                        text = state.body,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White
-                    )
-                }
-
-                item {
-                    Text(
-                        text = "Loaded ${state.loadCount} time(s)",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
-                    )
-                }
-
-                itemsIndexed(state.items, key =
-                    { index, item -> "$page-$index-$item" }
-                ) { _, item ->
-                    Surface(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item {
                         Text(
-                            text = item,
+                            text = state.title,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = Color.White
+                        )
+                    }
+
+                    item {
+                        Text(
+                            text = state.body,
                             style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(16.dp)
+                            color = Color.White
                         )
                     }
-                }
 
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 12.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CentralizedImage(
-                            description = state.imageDescription,
-                            modifier = Modifier.size(140.dp)
+                    item {
+                        Text(
+                            text = "Loaded ${state.loadCount} time(s)",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
                         )
                     }
-                }
 
-                item {
-                    Spacer(modifier = Modifier.height(12.dp))
+                    itemsIndexed(state.items, key =
+                        { index, item -> "$page-$index-$item" }
+                    ) { _, item ->
+                        Surface(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = item,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    }
+
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CentralizedImage(
+                                description = state.imageDescription,
+                                modifier = Modifier.size(140.dp)
+                            )
+                        }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
             }
         }

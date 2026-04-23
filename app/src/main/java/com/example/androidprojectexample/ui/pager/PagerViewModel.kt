@@ -8,6 +8,10 @@ import kotlinx.coroutines.launch
 
 class PagerViewModel : ViewModel() {
     private val pageStates = mutableStateMapOf<Int, PagerPageUiState>()
+    private val chunkSize = 30
+    private val prefetchThreshold = 4
+    // Demo-only behavior: each pager tab has an unknown limit from "backend".
+    private val simulatedLastChunkByPage = mapOf(0 to 5, 1 to 3, 2 to 4)
 
     fun pageState(page: Int): PagerPageUiState {
         return pageStates[page] ?: PagerPageUiState()
@@ -25,6 +29,7 @@ class PagerViewModel : ViewModel() {
         viewModelScope.launch {
             // Simulate async loading. Replace with repository/network call.
             delay(1500)
+            val firstChunkItems = requestItems(page = page, chunk = 1)
 
             pageStates[page] = PagerPageUiState(
                 isLoading = false,
@@ -40,12 +45,54 @@ class PagerViewModel : ViewModel() {
                     else -> "This third page can show details or actions specific to the user."
                 },
                 loadCount = (current?.loadCount ?: 0) + 1,
-                items = defaultItemsForPage(page),
+                items = firstChunkItems,
                 imageDescription = when (page) {
                     0 -> "Overview footer image"
                     1 -> "Stats footer image"
                     else -> "Profile footer image"
-                }
+                },
+                loadedChunks = if (firstChunkItems.isEmpty()) 0 else 1,
+                hasMoreItems = firstChunkItems.isNotEmpty()
+            )
+        }
+    }
+
+    fun loadNextPageIfNeeded(page: Int, lastVisibleIndex: Int) {
+        val current = pageStates[page] ?: return
+
+        if (!current.isLoaded || current.isLoading || current.isRefreshing || current.isAppending || !current.hasMoreItems) {
+            return
+        }
+
+        if (lastVisibleIndex < current.items.lastIndex - prefetchThreshold) {
+            return
+        }
+
+        val nextChunk = current.loadedChunks + 1
+
+        pageStates[page] = current.copy(isAppending = true)
+
+        viewModelScope.launch {
+            // Simulate async append API call.
+            delay(800)
+
+            val appendedItems = requestItems(page = page, chunk = nextChunk)
+
+            if (appendedItems.isEmpty()) {
+                // Backend says no more data.
+                pageStates[page] = current.copy(
+                    isAppending = false,
+                    hasMoreItems = false
+                )
+                return@launch
+            }
+
+            pageStates[page] = current.copy(
+                isAppending = false,
+                isLoaded = true,
+                items = current.items + appendedItems,
+                loadedChunks = nextChunk,
+                hasMoreItems = true
             )
         }
     }
@@ -67,17 +114,27 @@ class PagerViewModel : ViewModel() {
                 isRefreshing = false,
                 isLoaded = true,
                 loadCount = current.loadCount + 1,
-                items = current.items.ifEmpty { defaultItemsForPage(page) }.shuffled()
+                items = current.items.ifEmpty { defaultItemsForPage(page = page, chunk = 1) }.shuffled(),
+                hasMoreItems = current.hasMoreItems,
+                isAppending = false
             )
         }
     }
 
-    private fun defaultItemsForPage(page: Int): List<String> {
-        return List(30) { index ->
+    private fun requestItems(page: Int, chunk: Int): List<String> {
+        val lastChunk = simulatedLastChunkByPage[page] ?: 2
+        if (chunk > lastChunk) return emptyList()
+        return defaultItemsForPage(page = page, chunk = chunk)
+    }
+
+    private fun defaultItemsForPage(page: Int, chunk: Int): List<String> {
+        val start = ((chunk - 1) * chunkSize) + 1
+        return List(chunkSize) { offset ->
+            val index = start + offset
             when (page) {
-                0 -> "Overview element ${index + 1}"
-                1 -> "Stats element ${index + 1}"
-                else -> "Profile element ${index + 1}"
+                0 -> "Overview element $index"
+                1 -> "Stats element $index"
+                else -> "Profile element $index"
             }
         }
     }

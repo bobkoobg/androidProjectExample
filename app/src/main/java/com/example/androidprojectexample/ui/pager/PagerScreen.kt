@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.Surface
@@ -45,7 +46,8 @@ private fun PagerScreenPreview() {
             items = List(5) { "Preview element ${it + 1}" },
             imageDescription = "Preview footer image"
         ),
-        onRefresh = {}
+        onRefresh = {},
+        onNearEndReached = {}
     )
 }
 
@@ -75,7 +77,10 @@ fun PagerScreen() {
         PagerPageContent(
             page = page,
             state = pageState,
-            onRefresh = { pagerViewModel.refreshPage(page) }
+            onRefresh = { pagerViewModel.refreshPage(page) },
+            onNearEndReached = { lastVisibleIndex ->
+                pagerViewModel.loadNextPageIfNeeded(page = page, lastVisibleIndex = lastVisibleIndex)
+            }
         )
     }
 }
@@ -84,7 +89,8 @@ fun PagerScreen() {
 private fun PagerPageContent(
     page: Int,
     state: PagerPageUiState,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onNearEndReached: (lastVisibleIndex: Int) -> Unit
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
 
@@ -143,7 +149,19 @@ private fun PagerPageContent(
 
                     itemsIndexed(state.items, key =
                         { index, item -> "$page-$index-$item" }
-                    ) { _, item ->
+                    ) { index, item ->
+                        Log.d("BOYKO", "Hello, I am walking through elements index $index, item $item")
+                        if (
+                            state.hasMoreItems
+                            && !state.isAppending
+                            && index >= state.items.lastIndex - 1
+                        ) {
+                            LaunchedEffect(state.items.size) {
+                                Log.d("BOYKO", "I've reached the end dudah , index $index")
+                                onNearEndReached(index)
+                            }
+                        }
+
                         Surface(
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -152,6 +170,30 @@ private fun PagerPageContent(
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.padding(16.dp)
                             )
+                        }
+                    }
+
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            when {
+                                state.isAppending -> {
+                                    Log.d("BOYKO", "I am querying new items!")
+                                    CircularProgressIndicator(modifier = Modifier.size(22.dp))
+                                }
+                                !state.hasMoreItems -> {
+                                    Log.d("BOYKO", "That's all folks :)")
+                                    Text(
+                                        text = "No more items",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.White
+                                    )
+                                }
+                            }
                         }
                     }
 

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -34,47 +36,68 @@ fun UserMenuGuestOverlayScreen(onClose: () -> Unit) {
 
 @Composable
 fun UserMenuGuestOverlayScreenContent(onClose: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        IconButton(
-            onClick = onClose,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 12.dp, end = 12.dp)
-        ) {
-            Icon(imageVector = Icons.Default.Close, contentDescription = "Close menu")
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Welcome, Guest!",
-                style = MaterialTheme.typography.headlineSmall
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-            HorizontalDivider()
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "Sign in to access your account, track orders, and more.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(onClick = { /* TODO: navigate to login */ }) {
-                Text("Sign in")
+    Column(
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .fillMaxSize()
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 12.dp, end = 12.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Close, contentDescription = "Close menu")
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { /* TODO: navigate to register */ }) {
-                Text("Create an account")
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Top
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Welcome, Guest!",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Sign in to access your account, track orders, and more.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(onClick = { /* TODO: navigate to login */ }) {
+                    Text("Sign in")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = { /* TODO: navigate to register */ }) {
+                    Text("Create an account")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = { /* TODO: navigate to register */ }) {
+                    Text("Create an account 2")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = { /* TODO: navigate to register */ }) {
+                    Text("Create an account 3")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = { /* TODO: navigate to register */ }) {
+                    Text("Create an account 4")
+                }
             }
         }
     }

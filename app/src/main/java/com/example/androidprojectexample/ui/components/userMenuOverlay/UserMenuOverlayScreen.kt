@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.HorizontalDivider
@@ -35,41 +38,59 @@ fun UserMenuOverlayScreen(onClose: () -> Unit) {
 
 @Composable
 fun UserMenuOverlayScreenContent(onClose: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        IconButton(
-            onClick = onClose,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 12.dp, end = 12.dp)
-        ) {
-            Icon(imageVector = Icons.Default.Close, contentDescription = "Close menu")
-        }
+    Column(
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .fillMaxSize()
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 12.dp, end = 12.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Close, contentDescription = "Close menu")
+            }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Top
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = "My Account",
-                style = MaterialTheme.typography.headlineSmall
-            )
+                Text(
+                    text = "My Account",
+                    style = MaterialTheme.typography.headlineSmall
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
-            HorizontalDivider()
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(24.dp))
 
-            Text(text = "👤  Profile", style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "⚙️  Settings", style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "🔔  Notifications", style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "📦  My Orders", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "👤  Profile", style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "⚙️  Settings", style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "🔔  Notifications", style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "📦  My Orders", style = MaterialTheme.typography.bodyLarge)
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "📦  My Orders 2", style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "📦  My Orders 3", style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "📦  My Orders 4", style = MaterialTheme.typography.bodyLarge)
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "📦  My Orders 5", style = MaterialTheme.typography.bodyLarge)
+
+            }
         }
     }
+
 }

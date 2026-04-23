@@ -17,5 +17,6 @@ import com.example.androidprojectexample.data.model.Song
 //In an offline-first application, the source of truth for application data is typically a database.
 data class SongUiState (
     val songs: List<Song> = listOf(),
-    val inputText: String = ""
+    val inputText: String = "",
+    val activeDialog: SongDialogModel? = null
 )

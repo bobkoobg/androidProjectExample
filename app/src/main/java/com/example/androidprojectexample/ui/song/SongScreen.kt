@@ -3,6 +3,7 @@ package com.example.androidprojectexample.ui.song
 import com.example.androidprojectexample.data.model.Song
 import android.util.Log
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -29,10 +30,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.androidprojectexample.ui.components.dialogs.AppConfirmationDialog
+import com.example.androidprojectexample.ui.components.dialogs.DialogButtonConfig
 import kotlinx.coroutines.flow.collectLatest
-
-// UI elements that render the data on the screen.
-// You build these elements using Jetpack Compose functions to support adaptive layouts.
 
 @Composable
 fun SongScreen() {
@@ -74,13 +74,30 @@ fun SongScreen() {
             keyboardController?.hide()
             songViewModel.addSong()
         },
-        onDoSomethingClick = {
+        onOpenDeleteDialog = {
             Log.d("BOYKO", "THIS IS A CLICK EVENT - Meaning that we want something to happen")
             focusManager.clearFocus(force = true)
             keyboardController?.hide()
-            songViewModel.onDoSomethingClick()
+            songViewModel.openDeleteDialog()
         },
-        snackbarHostState = snackbarHostState
+        onOpenAddDialog = { approved ->
+            Log.d("BOYKO", "THIS IS A CLICK EVENT - Meaning that we want something to happen")
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
+            songViewModel.openAddDialog(approved)
+        },
+        onOpenUpdateDialog = {
+            Log.d("BOYKO", "THIS IS A CLICK EVENT - Meaning that we want something to happen")
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
+            songViewModel.openUpdateDialog()
+        },
+        snackbarHostState = snackbarHostState,
+        activeDialog = state.activeDialog,
+        onDialogAction = { action ->
+            Log.d("BOYKO", "Dialog action: $action")
+            songViewModel.dismissDialog()
+        }
     )
 }
 
@@ -89,49 +106,92 @@ fun SongScreenContent(
     state: SongUiState,
     onSongAddInputChange: (String) -> Unit,
     onAddSong: () -> Unit,
-    onDoSomethingClick: () -> Unit,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    onOpenDeleteDialog: () -> Unit = {},
+    onOpenAddDialog: (Boolean) -> Unit = {},
+    onOpenUpdateDialog: () -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    activeDialog: SongDialogModel? = null,
+    onDialogAction: (SongDialogActionEnum) -> Unit = {}
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            item {
-                Row {
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = onSongAddInputChange,
-                        modifier = Modifier
-                            .border(1.dp, Color.Gray)
-                            .padding(8.dp)
-                    )
-                    Button(onClick = onAddSong) {
-                        Text("Add song")
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                item {
+                    Row {
+                        BasicTextField(
+                            value = state.inputText,
+                            onValueChange = onSongAddInputChange,
+                            modifier = Modifier
+                                .border(1.dp, Color.Gray)
+                                .padding(8.dp)
+                        )
+                        Button(onClick = onAddSong) {
+                            Text("Add song")
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                items(state.songs) { song ->
+                    SongItem(title = song.title)
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                item {
+                    Button(onClick = onOpenDeleteDialog) {
+                        Text("Delete (approve + decline)")
+                    }
+                }
+                item {
+                    // showApprove = true → only Approve button; false → only Decline
+                    Button(onClick = { onOpenAddDialog(true) }) {
+                        Text("Add (single button)")
+                    }
+                }
+                item {
+                    Button(onClick = onOpenUpdateDialog) {
+                        Text("Update (+ try again)")
                     }
                 }
             }
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            items(state.songs) { song ->
-                SongItem(title = song.title)
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            item {
-                Button(onClick = onDoSomethingClick) {
-                    Text("Do something")
-                }
+            when (activeDialog) {
+                is SongDialogModel.Delete -> AppConfirmationDialog(
+                    title = "Delete Song",
+                    message = "Are you sure you want to delete \"${activeDialog.songName}\"?",
+                    onDismissRequest = { onDialogAction(SongDialogActionEnum.Dismiss) },
+                    confirmButton = DialogButtonConfig("Approve") { onDialogAction(SongDialogActionEnum.Confirm) },
+                    dismissButton = DialogButtonConfig("Decline") { onDialogAction(SongDialogActionEnum.Dismiss) }
+                )
+                is SongDialogModel.Add -> AppConfirmationDialog(
+                    title = "Add Song",
+                    message = "Do you want to add \"${activeDialog.songName}\"?",
+                    onDismissRequest = { onDialogAction(SongDialogActionEnum.Dismiss) },
+                    confirmButton = if (activeDialog.showApprove) DialogButtonConfig("Approve") { onDialogAction(SongDialogActionEnum.Confirm) } else null,
+                    dismissButton = if (!activeDialog.showApprove) DialogButtonConfig("Decline") { onDialogAction(SongDialogActionEnum.Dismiss) } else null
+                )
+                is SongDialogModel.Update -> AppConfirmationDialog(
+                    title = "Update Song",
+                    message = "Do you want to update \"${activeDialog.songName}\"?",
+                    onDismissRequest = { onDialogAction(SongDialogActionEnum.Dismiss) },
+                    confirmButton = DialogButtonConfig("Approve") { onDialogAction(SongDialogActionEnum.Confirm) },
+                    dismissButton = DialogButtonConfig("Decline") { onDialogAction(SongDialogActionEnum.Dismiss) },
+                    extraButton = DialogButtonConfig("Try Again") { onDialogAction(SongDialogActionEnum.TryAgain) }
+                )
+                null -> Unit
             }
         }
     }
@@ -150,7 +210,6 @@ private fun SongScreenPreview() {
             inputText = "Papercut"
         ),
         onSongAddInputChange = {},
-        onAddSong = {},
-        onDoSomethingClick = {}
+        onAddSong = {}
     )
 }

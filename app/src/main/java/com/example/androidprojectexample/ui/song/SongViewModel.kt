@@ -6,13 +6,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidprojectexample.BazaarApplication
 import com.example.androidprojectexample.domain.song.AddSongResult
-import com.example.androidprojectexample.ui.startup.AppStartupState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -100,8 +97,20 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun onDoSomethingClick() {
-        _events.tryEmit(SongUiEvent.ShowSnackbar("Song button clicked"))
+    fun openDeleteDialog() {
+        _uiState.update { it.copy(activeDialog = SongDialogModel.Delete("My Song")) }
+    }
+
+    fun openAddDialog(approved: Boolean) {
+        _uiState.update { it.copy(activeDialog = SongDialogModel.Add("New Song", showApprove = approved)) }
+    }
+
+    fun openUpdateDialog() {
+        _uiState.update { it.copy(activeDialog = SongDialogModel.Update("Existing Song")) }
+    }
+
+    fun dismissDialog() {
+        _uiState.update { it.copy(activeDialog = null) }
     }
 
     fun loadSongs() {

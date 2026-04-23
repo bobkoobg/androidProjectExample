@@ -2,34 +2,53 @@ package com.example.androidprojectexample.ui.pager
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidprojectexample.ui.components.CentralizedImage
 import com.example.androidprojectexample.ui.components.SpinningImage
+import kotlin.math.roundToInt
 
 // UI elements that render the data on the screen.
 // You build these elements using Jetpack Compose functions to support adaptive layouts.
@@ -47,7 +66,8 @@ private fun PagerScreenPreview() {
             imageDescription = "Preview footer image"
         ),
         onRefresh = {},
-        onNearEndReached = {}
+        onNearEndReached = {},
+        onDeleteItem = {}
     )
 }
 
@@ -80,17 +100,20 @@ fun PagerScreen() {
             onRefresh = { pagerViewModel.refreshPage(page) },
             onNearEndReached = { lastVisibleIndex ->
                 pagerViewModel.loadNextPageIfNeeded(page = page, lastVisibleIndex = lastVisibleIndex)
-            }
+            },
+            onDeleteItem = { item -> pagerViewModel.removeItem(page = page, item = item) }
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PagerPageContent(
     page: Int,
     state: PagerPageUiState,
     onRefresh: () -> Unit,
-    onNearEndReached: (lastVisibleIndex: Int) -> Unit
+    onNearEndReached: (lastVisibleIndex: Int) -> Unit,
+    onDeleteItem: (item: String) -> Unit
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
 
@@ -162,14 +185,64 @@ private fun PagerPageContent(
                             }
                         }
 
-                        Surface(
-                            modifier = Modifier.fillMaxWidth()
+                        val actionWidth = 64.dp
+                        val actionWidthPx = with(LocalDensity.current) { actionWidth.toPx() }
+                        var offsetX by remember(item) { mutableFloatStateOf(0f) }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(IntrinsicSize.Min)
+                                .padding(horizontal = 8.dp),
+                            contentAlignment = Alignment.CenterEnd
                         ) {
-                            Text(
-                                text = item,
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.padding(16.dp)
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .width(actionWidth)
+                                    .fillMaxHeight()
+                                    .background(Color(0xFFD32F2F)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (state.deletingItems.contains(item)) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        color = Color.White,
+                                        strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    IconButton(onClick = { onDeleteItem(item) }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Delete,
+                                            contentDescription = "Delete item",
+                                            tint = Color.White
+                                        )
+                                    }
+                                }
+                            }
+
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .offset { IntOffset(offsetX.roundToInt(), 0) }
+                                    .draggable(
+                                        orientation = androidx.compose.foundation.gestures.Orientation.Horizontal,
+                                        state = rememberDraggableState { delta ->
+                                            offsetX = (offsetX + delta).coerceIn(-actionWidthPx, 0f)
+                                        },
+                                        onDragStopped = {
+                                            offsetX = if (offsetX <= -actionWidthPx / 2f) -actionWidthPx else 0f
+                                        }
+                                    )
+                                    .clickable(enabled = offsetX < 0f) {
+                                        offsetX = 0f
+                                    }
+                            ) {
+                                Text(
+                                    text = item,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
                         }
                     }
 

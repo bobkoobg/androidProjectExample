@@ -121,6 +121,26 @@ class PagerViewModel : ViewModel() {
         }
     }
 
+    fun removeItem(page: Int, item: String) {
+        val current = pageStates[page] ?: return
+        if (current.deletingItems.contains(item)) return
+
+        pageStates[page] = current.copy(deletingItems = current.deletingItems + item)
+
+        viewModelScope.launch {
+            // Simulate API delete call for this item.
+            delay(500)
+
+            val latest = pageStates[page] ?: return@launch
+            val remaining = latest.items.toMutableList().apply { remove(item) }
+
+            pageStates[page] = latest.copy(
+                items = remaining,
+                deletingItems = latest.deletingItems - item
+            )
+        }
+    }
+
     private fun requestItems(page: Int, chunk: Int): List<String> {
         val lastChunk = simulatedLastChunkByPage[page] ?: 2
         if (chunk > lastChunk) return emptyList()

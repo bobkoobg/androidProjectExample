@@ -11,5 +11,6 @@ data class PagerPageUiState(
     val items: List<String> = emptyList(),
     val imageDescription: String = "",
     val loadedChunks: Int = 0,
-    val hasMoreItems: Boolean = true
+    val hasMoreItems: Boolean = true,
+    val deletingItems: Set<String> = emptySet()
 )
